@@ -8,13 +8,15 @@ import { IntlWrapper } from "../../core/base/IntlWrapper";
 import { injectIntl } from "react-intl";
 import { AttributeDropdown, AttributeDropdownWrapped } from "./AttributeDropdown";
 import { AttributeLoader } from "./AttributeLoader";
-import { IAttributeDisplayForm } from "./model";
+import { IAttributeDisplayForm, IAttributeElement } from "./model";
 import { setTelemetryHeaders } from "../../../helpers/utils";
 
 export interface IAttributeFilterProps {
     sdk?: SDK;
     uri?: string;
     identifier?: string;
+    selection?: IAttributeElement[];
+    isInverted?: boolean;
     projectId?: string;
     metadata?: {
         getObjectUri: (...params: any[]) => any; // TODO: make the types more specific (FET-282)
@@ -48,6 +50,8 @@ export class AttributeFilter extends React.PureComponent<IAttributeFilterProps> 
     public static propTypes = {
         uri: PropTypes.string,
         identifier: PropTypes.string,
+        selection: PropTypes.array,
+        isInverted: PropTypes.bool,
         projectId: PropTypes.string,
         onApply: PropTypes.func.isRequired,
         fullscreenOnMobile: PropTypes.bool,
@@ -59,6 +63,7 @@ export class AttributeFilter extends React.PureComponent<IAttributeFilterProps> 
     public static defaultProps: Partial<IAttributeFilterProps> = {
         uri: null,
         identifier: null,
+        selection: [],
         projectId: null,
         locale: "en-US",
 

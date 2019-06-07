@@ -60,6 +60,8 @@ export interface IAttributeMetadata {
 export interface IAttributeDropdownProps {
     attributeDisplayForm: IAttributeDisplayForm;
     projectId: string;
+    selection: IAttributeElement[];
+    isInverted: boolean;
     onApply: (...params: any[]) => any; // TODO: make the types more specific (FET-282)
     fullscreenOnMobile?: boolean;
     isUsingIdentifier: boolean;
@@ -147,6 +149,8 @@ export class AttributeDropdownWrapped extends React.PureComponent<
     public static propTypes = {
         attributeDisplayForm: PropTypes.object.isRequired,
         projectId: PropTypes.string.isRequired,
+        selection: PropTypes.array,
+        isInverted: PropTypes.bool,
         isUsingIdentifier: PropTypes.bool,
         intl: intlShape.isRequired,
 
@@ -166,6 +170,7 @@ export class AttributeDropdownWrapped extends React.PureComponent<
     public static defaultProps = {
         fullscreenOnMobile: false,
         isUsingIdentifier: false,
+        selection: new Array<IAttributeElement>(),
 
         getListItem: () => <AttributeFilterItem />,
         getListLoading: getDefaultListLoading,
@@ -185,8 +190,8 @@ export class AttributeDropdownWrapped extends React.PureComponent<
             isListReady: false,
             listError: null,
             items: [],
-            selection: [],
-            isInverted: true,
+            selection: props.selection || [],
+            isInverted: props.isInverted !== undefined ? props.isInverted : !props.selection.length,
             searchString: "",
         };
 
@@ -325,6 +330,15 @@ export class AttributeDropdownWrapped extends React.PureComponent<
         const { isListReady, items, selection, listError, totalCount } = this.state;
         const { getListError, getListLoading, getListNoResults } = this.props;
 
+        const updatedSelection = selection.map(selectedItem => {
+            const foundItem = items.find(
+                item =>
+                    item.uri === selectedItem.uri ||
+                    (selectedItem.title && item.title === selectedItem.title),
+            );
+            return foundItem || selectedItem;
+        });
+
         if (listError) {
             return this.renderOverlayWrap(getListError(listError, this.props, this.state), true);
         }
@@ -342,7 +356,7 @@ export class AttributeDropdownWrapped extends React.PureComponent<
                 items={items}
                 itemsCount={parseInt(totalCount, 10)}
                 filteredItemsCount={parseInt(totalCount, 10)}
-                selection={selection}
+                selection={updatedSelection}
                 isInverted={this.state.isInverted}
                 showSearchField={false}
                 rowItem={<AttributeFilterItem />}
