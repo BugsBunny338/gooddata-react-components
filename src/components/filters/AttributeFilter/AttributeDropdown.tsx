@@ -191,7 +191,9 @@ export class AttributeDropdownWrapped extends React.PureComponent<
             listError: null,
             items: [],
             selection: props.selection || [],
+            prevSelection: null;
             isInverted: props.isInverted !== undefined ? props.isInverted : !props.selection.length,
+            wasInverted: null,
             searchString: "",
         };
 
@@ -199,7 +201,7 @@ export class AttributeDropdownWrapped extends React.PureComponent<
 
         this.onDropdownToggle = this.onDropdownToggle.bind(this);
         this.onApply = this.onApply.bind(this);
-        this.onClose = this.onClose.bind(this);
+        this.onCancel = this.onCancel.bind(this);
     }
 
     public componentWillReceiveProps(nextProps: IAttributeDropdownProps) {
@@ -251,7 +253,12 @@ export class AttributeDropdownWrapped extends React.PureComponent<
         this.dropdownRef.closeDropdown();
     }
 
-    private onClose() {
+    private onCancel() {
+        this.setState({
+            selection: this.state.prevSelection,
+            isInverted: this.state.wasInverted
+        });
+
         this.dropdownRef.closeDropdown();
     }
 
@@ -314,6 +321,12 @@ export class AttributeDropdownWrapped extends React.PureComponent<
         const { attributeDisplayForm } = this.props;
         if (isDropdownOpen && !isListReady && !isListInitialising) {
             this.setupDataSource(attributeDisplayForm.meta.uri);
+        }
+        if (isDropdownOpen) {
+            this.setState({
+                prevSelection: this.state.selection,
+                wasInverted: this.state.isInverted
+            });
         }
     }
 
@@ -379,7 +392,7 @@ export class AttributeDropdownWrapped extends React.PureComponent<
             <div className="gd-attribute-filter-actions">
                 <Button
                     className="button-secondary button-small cancel-button"
-                    onClick={this.onClose}
+                    onClick={this.onCancel}
                     value={cancelText}
                     title={cancelText}
                 />
