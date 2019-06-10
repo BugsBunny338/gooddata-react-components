@@ -63,9 +63,7 @@ describe("AttributeDropdown", () => {
         const attributeDisplayForm = createADF();
         const wrapper = renderComponent({ attributeDisplayForm });
         wrapper.find("button.s-country").simulate("click");
-        expect(
-            document.querySelectorAll(".gd-attribute-filter-overlay .s-attribute-filter-list-loading"),
-        ).toHaveLength(1);
+        expect(document.querySelectorAll(".s-isLoading.loading-mask")).toHaveLength(1);
     });
 
     it("should render overlay with loaded items", async done => {
