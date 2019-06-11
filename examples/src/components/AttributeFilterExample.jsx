@@ -9,7 +9,7 @@ import { employeeNameIdentifier, projectId } from "../utils/fixtures";
 export class AttributeFilterExample extends Component {
     onApply(params) {
         // eslint-disable-next-line no-console
-        console.log("AttributeFilterExample onApply", ...params);
+        console.log("AttributeFilterExample onApply", params);
     }
 
     render() {
