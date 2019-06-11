@@ -9,6 +9,7 @@ import { string as stringUtils } from "@gooddata/js-utils";
 import DataSource from "@gooddata/goodstrap/lib/DataSource/DataSource";
 import { injectIntl, intlShape, InjectedIntlProps, InjectedIntl } from "react-intl";
 import { IValidElementsResponse, IElement } from "@gooddata/gooddata-js";
+import * as Model from "../../../helpers/model";
 import * as classNames from "classnames";
 import last = require("lodash/last");
 import pick = require("lodash/pick");
@@ -119,16 +120,9 @@ export function loadAttributeElements(
     });
 }
 
-function getElementId(element: IAttributeElement) {
-    return element.uri.split("=")[1];
-}
-
 export function createAfmFilter(id: string, selection: IAttributeElement[], isInverted: boolean) {
-    return {
-        id,
-        type: "attribute",
-        [isInverted ? "notIn" : "in"]: selection.map(getElementId),
-    };
+    const attributeFilter = isInverted ? "negativeAttributeFilter" : "positiveAttributeFilter";
+    return Model[attributeFilter](id, selection.map(item => item.uri));
 }
 
 export class AttributeDropdownWrapped extends React.PureComponent<
