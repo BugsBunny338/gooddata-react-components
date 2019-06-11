@@ -275,11 +275,24 @@ export class AttributeDropdownWrapped extends React.PureComponent<
         });
 
         this.dataSource.onChange((result: any) => {
+            const { selection } = this.state;
+
+            const items = result.data.items.map((i: any) => i || { empty: true });
+            const updatedSelection = selection.map(selectedItem => {
+                const foundItem = items.find(
+                    (item: any) =>
+                        item.uri === selectedItem.uri ||
+                        (selectedItem.title && item.title === selectedItem.title),
+                );
+                return foundItem || selectedItem;
+            });
+
             this.setState({
                 totalCount: result.data.totalCount,
                 isListReady: true,
                 listError: null,
-                items: result.data.items.map((i: any) => i || { empty: true }),
+                items,
+                selection: updatedSelection,
                 isListInitialising: true,
             });
         });
@@ -334,15 +347,6 @@ export class AttributeDropdownWrapped extends React.PureComponent<
         const { isListReady, items, selection, listError, totalCount, searchString } = this.state;
         const { getListError } = this.props;
 
-        const updatedSelection = selection.map(selectedItem => {
-            const foundItem = items.find(
-                item =>
-                    item.uri === selectedItem.uri ||
-                    (selectedItem.title && item.title === selectedItem.title),
-            );
-            return foundItem || selectedItem;
-        });
-
         if (listError) {
             return this.renderOverlayWrap(getListError(listError, this.props, this.state), true);
         }
@@ -352,7 +356,7 @@ export class AttributeDropdownWrapped extends React.PureComponent<
                 items={items}
                 itemsCount={parseInt(totalCount, 10)}
                 filteredItemsCount={parseInt(totalCount, 10)}
-                selection={updatedSelection}
+                selection={selection}
                 isInverted={this.state.isInverted}
                 showSearchField={true}
                 searchString={searchString}
