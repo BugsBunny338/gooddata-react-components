@@ -63,7 +63,6 @@ export interface IAttributeDropdownProps {
 export interface IAttributeDropdownStateItem {
     title: string;
     uri: string;
-    selected?: boolean;
 }
 
 export interface IAttributeDropdownState {
