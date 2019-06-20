@@ -8,15 +8,12 @@ import { IntlWrapper } from "../../core/base/IntlWrapper";
 import { injectIntl } from "react-intl";
 import { AttributeDropdown, AttributeDropdownWrapped } from "./AttributeDropdown";
 import { AttributeLoader } from "./AttributeLoader";
-import { IAttributeDisplayForm, IAttributeElement } from "./model";
+import { IAttributeDisplayForm } from "./model";
 import { setTelemetryHeaders } from "../../../helpers/utils";
 
 export interface IAttributeFilterProps {
     sdk?: SDK;
-    uri?: string;
-    identifier?: string;
-    selection?: IAttributeElement[];
-    isInverted?: boolean;
+    filter: any; // JZA TODO: make the types more specific (FET-282)
     projectId?: string;
     metadata?: {
         getObjectUri: (...params: any[]) => any; // TODO: make the types more specific (FET-282)
@@ -48,10 +45,7 @@ const DefaultFilterError = injectIntl(({ intl }) => {
  */
 export class AttributeFilter extends React.PureComponent<IAttributeFilterProps> {
     public static propTypes = {
-        uri: PropTypes.string,
-        identifier: PropTypes.string,
-        selection: PropTypes.array,
-        isInverted: PropTypes.bool,
+        filter: PropTypes.object.isRequired,
         projectId: PropTypes.string,
         onApply: PropTypes.func.isRequired,
         fullscreenOnMobile: PropTypes.bool,
@@ -61,9 +55,6 @@ export class AttributeFilter extends React.PureComponent<IAttributeFilterProps> 
     };
 
     public static defaultProps: Partial<IAttributeFilterProps> = {
-        uri: null,
-        identifier: null,
-        selection: [],
         projectId: null,
         locale: "en-US",
 
@@ -90,8 +81,10 @@ export class AttributeFilter extends React.PureComponent<IAttributeFilterProps> 
     }
 
     public render() {
-        const { locale, projectId, uri, identifier } = this.props;
+        const { locale, projectId } = this.props;
         const { md } = this.sdk;
+        const { identifier, uri } = this.getIdentifierAndUri();
+
         return (
             <IntlWrapper locale={locale}>
                 <AttributeLoader uri={uri} identifier={identifier} projectId={projectId} metadata={md}>
@@ -99,6 +92,38 @@ export class AttributeFilter extends React.PureComponent<IAttributeFilterProps> 
                 </AttributeLoader>
             </IntlWrapper>
         );
+    }
+
+    private isInverted() {
+        const { filter } = this.props;
+
+        return filter.positiveAttributeFilter ? false : true;
+    }
+
+    private getIdentifierAndUri() {
+        const { filter } = this.props;
+        const filterType = this.isInverted() ? "negativeAttributeFilter" : "positiveAttributeFilter";
+        const identifier = filter[filterType].displayForm.identifier;
+        const uri = filter[filterType].displayForm.uri;
+
+        return {
+            identifier,
+            uri,
+        };
+    }
+
+    private getSelection() {
+        const { filter } = this.props;
+        const filterType = this.isInverted() ? "negativeAttributeFilter" : "positiveAttributeFilter";
+        const inType = this.isInverted() ? "notIn" : "in";
+        const textFilter = filter[filterType].textFilter;
+        const selection = filter[filterType][inType];
+
+        return selection
+            ? selection.map((uriOrTitle: string) => ({
+                  [textFilter ? "title" : "uri"]: uriOrTitle,
+              }))
+            : [];
     }
 
     private renderContent({
@@ -113,13 +138,16 @@ export class AttributeFilter extends React.PureComponent<IAttributeFilterProps> 
         }
 
         const dropdownProps: any = pick(this.props, Object.keys(AttributeDropdownWrapped.propTypes));
-        const isUsingIdentifier = this.props.identifier !== null;
+        const { identifier } = this.getIdentifierAndUri();
+        const isUsingIdentifier = !!identifier;
         const { md } = this.sdk;
         return (
             <AttributeDropdown
                 attributeDisplayForm={attributeDisplayForm}
                 metadata={md}
                 {...dropdownProps}
+                selection={this.getSelection()}
+                isInverted={this.isInverted()}
                 isUsingIdentifier={isUsingIdentifier}
             />
         );

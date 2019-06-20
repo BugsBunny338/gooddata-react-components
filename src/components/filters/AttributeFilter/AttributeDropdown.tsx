@@ -270,12 +270,11 @@ export class AttributeDropdownWrapped extends React.PureComponent<
 
         this.dataSource.onChange((result: any) => {
             const { selection } = this.state;
-
             const items = result.data.items.map((i: any) => i || { empty: true });
             const updatedSelection = selection.map(selectedItem => {
                 const foundItem = items.find(
                     (item: any) =>
-                        item.uri === selectedItem.uri ||
+                        (selectedItem.uri && item.uri === selectedItem.uri) ||
                         (selectedItem.title && item.title === selectedItem.title),
                 );
                 return foundItem || selectedItem;

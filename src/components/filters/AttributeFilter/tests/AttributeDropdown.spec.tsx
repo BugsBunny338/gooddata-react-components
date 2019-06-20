@@ -96,10 +96,10 @@ describe("AttributeDropdown", () => {
             expect(filter).toEqual({
                 negativeAttributeFilter: {
                     displayForm: {
-                        uri: ATTRIBUTE_DISPLAY_FORM_URI
+                        uri: ATTRIBUTE_DISPLAY_FORM_URI,
                     },
                     notIn: ["/gdc/md/projectId/object/123?id=0"],
-                }
+                },
             });
         });
         const wrapper = renderComponent({
@@ -149,10 +149,10 @@ describe("AttributeDropdown", () => {
             expect(createAfmFilter(id, selection, false)).toEqual({
                 positiveAttributeFilter: {
                     displayForm: {
-                        identifier: 'foo'
+                        identifier: "foo",
                     },
                     in: ["/gdc/md/projectId/obj/1?id=1", "/gdc/md/projectId/obj/1?id=2"],
-                }
+                },
             });
         });
 
@@ -160,10 +160,10 @@ describe("AttributeDropdown", () => {
             expect(createAfmFilter(id, selection, true)).toEqual({
                 negativeAttributeFilter: {
                     displayForm: {
-                        identifier: 'foo'
+                        identifier: "foo",
                     },
                     notIn: ["/gdc/md/projectId/obj/1?id=1", "/gdc/md/projectId/obj/1?id=2"],
-                }
+                },
             });
         });
     });
